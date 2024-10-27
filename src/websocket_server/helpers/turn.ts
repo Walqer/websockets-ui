@@ -1,10 +1,11 @@
 import { GameInfo } from '../handlers/handleAddShips'
-export const turn = (gameId: string, games: Map<string, GameInfo>) => {
+export const turn = (
+    gameId: string,
+    games: Map<string, GameInfo>,
+    nextTurnOwner: 'firstPlayer' | 'secondPlayer'
+) => {
     const game = games.get(gameId) as GameInfo
-    const { firstPlayer, secondPlayer, turnOwner } = game
-    const nextTurnOwner =
-        turnOwner === 'firstPlayer' ? 'secondPlayer' : 'firstPlayer'
-
+    const { firstPlayer, secondPlayer } = game
     const plyaers = [firstPlayer.ws, secondPlayer!.ws]
     games.set(gameId, {
         ...game,

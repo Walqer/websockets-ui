@@ -5,12 +5,8 @@ import { createRoom, Room, updateRoomForAll } from './helpers/updateRoomForAll'
 import { updateWinnersForAll, Winner } from './helpers/updateWinnersForAll'
 import { addUserToRoom } from './helpers/addUserToRoom'
 import { createGame } from './helpers/createGame'
-import {
-    addShipsData,
-    GameInfo,
-    handleAddShips,
-} from './handlers/handleAddShips'
-import { turn } from './helpers/turn'
+import { GameInfo, handleAddShips } from './handlers/handleAddShips'
+import { AttackData, handleAttack } from './handlers/handleAttack'
 
 const webSocketServer = new ws.Server({ port: 3000 })
 
@@ -53,8 +49,11 @@ webSocketServer.on('connection', (ws, req) => {
                 handleAddShips(parsedMessage.data, games, ws)
                 break
             case 'attack':
-                const gameId = JSON.parse(parsedMessage.data).gameId
-                turn(gameId, games)
+                const attackRequestData = JSON.parse(
+                    parsedMessage.data
+                ) as AttackData
+                handleAttack(attackRequestData, games)
+
                 break
             case 'randomAttack':
                 break

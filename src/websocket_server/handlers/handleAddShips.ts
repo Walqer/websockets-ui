@@ -7,6 +7,7 @@ export const handleAddShips = (
 ) => {
     const gameData = JSON.parse(data) as addShipsData
     gameData.ws = ws
+    gameData.hits = new Set()
     if (games.has(gameData.gameId)) {
         const game = games.get(gameData.gameId) as GameInfo
         game.secondPlayer = gameData
@@ -36,14 +37,17 @@ export interface addShipsData {
     ws: ws
     ships: Ship[]
     indexPlayer: string
+    hits: Set<string>
 }
 
 export interface Ship {
-    position: {
-        x: number
-        y: number
-    }
+    position: Position
     direction: boolean
     length: number
-    type: string
+    type: 'small' | 'medium' | 'large' | 'huge'
+}
+
+export interface Position {
+    x: number
+    y: number
 }

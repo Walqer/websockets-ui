@@ -16,7 +16,7 @@ export const startGame = (game: GameInfo, games: Map<string, GameInfo>) => {
             game.secondPlayer!.indexPlayer
         )
     )
-    turn(game.gameId, games)
+    turn(game.gameId, games, 'firstPlayer')
 }
 
 const createStartGameResponse = (
