@@ -2,26 +2,38 @@ import ws from 'ws'
 import { startGame } from '../helpers/startGame'
 export const handleAddShips = (
     data: string,
-    games: Map<string, addShipsData[]>,
+    games: Map<string, GameInfo>,
     ws: ws
 ) => {
     const gameData = JSON.parse(data) as addShipsData
     gameData.ws = ws
     if (games.has(gameData.gameId)) {
-        games.set(gameData.gameId, [...games.get(gameData.gameId)!, gameData])
+        const game = games.get(gameData.gameId) as GameInfo
+        game.secondPlayer = gameData
+        games.set(gameData.gameId, game)
     } else {
-        games.set(gameData.gameId, [gameData])
+        games.set(gameData.gameId, {
+            gameId: gameData.gameId,
+            firstPlayer: gameData,
+            secondPlayer: null,
+            turnOwner: 'firstPlayer',
+        })
     }
-    const game = games.get(gameData.gameId) as addShipsData[]
-    if (game?.length === 2) {
-        startGame(game)
-        console.log(game[0].ships)
+    const game = games.get(gameData.gameId) as GameInfo
+    if (game.firstPlayer && game.secondPlayer) {
+        startGame(game, games)
     }
 }
 
-export interface addShipsData {
-    ws: ws
+export interface GameInfo {
     gameId: string
+    turnOwner: 'firstPlayer' | 'secondPlayer'
+    firstPlayer: addShipsData
+    secondPlayer: addShipsData | null
+}
+export interface addShipsData {
+    gameId: string
+    ws: ws
     ships: Ship[]
     indexPlayer: string
 }

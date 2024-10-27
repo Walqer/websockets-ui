@@ -1,13 +1,22 @@
-import { addShipsData, Ship } from '../handlers/handleAddShips'
+import { GameInfo, Ship } from '../handlers/handleAddShips'
 import { turn } from './turn'
-export const startGame = (game: addShipsData[]) => {
-    game.forEach((data) => {
-        const { ships, gameId, indexPlayer } = data
-        const currentSoket = data.ws
-        currentSoket.send(createStartGameResponse(gameId, ships, indexPlayer))
-    })
-    const wsList = game.map((data) => data.ws)
-    turn(game[0].indexPlayer, wsList)
+export const startGame = (game: GameInfo, games: Map<string, GameInfo>) => {
+    game.firstPlayer.ws.send(
+        createStartGameResponse(
+            game.gameId,
+            game.firstPlayer.ships,
+            game.firstPlayer.indexPlayer
+        )
+    )
+
+    game.secondPlayer!.ws.send(
+        createStartGameResponse(
+            game.gameId,
+            game.secondPlayer!.ships,
+            game.secondPlayer!.indexPlayer
+        )
+    )
+    turn(game.gameId, games)
 }
 
 const createStartGameResponse = (
