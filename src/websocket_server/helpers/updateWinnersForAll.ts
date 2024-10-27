@@ -1,9 +1,13 @@
-import { WebSocketServer } from 'ws'
+import { WebSocketServer, WebSocket } from 'ws'
 export interface Winner {
+    ws: WebSocket
+    wins: number
+}
+export interface WinnerForResponse {
     name: string
     wins: number
 }
-const createUpdateWinnersResponse = (winners: Winner[]) => {
+const createUpdateWinnersResponse = (winners: WinnerForResponse[]) => {
     return JSON.stringify({
         type: 'update_winners',
         data: JSON.stringify(winners),
@@ -12,7 +16,7 @@ const createUpdateWinnersResponse = (winners: Winner[]) => {
 }
 export const updateWinnersForAll = (
     wss: WebSocketServer,
-    winners: Winner[]
+    winners: WinnerForResponse[]
 ) => {
     wss.clients.forEach((client) => {
         const response = createUpdateWinnersResponse(winners)

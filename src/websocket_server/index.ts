@@ -2,7 +2,11 @@ import ws from 'ws'
 import { Message, Player } from './types/messageTypes'
 import { handleRegister } from './handlers/handleRegister'
 import { createRoom, Room, updateRoomForAll } from './helpers/updateRoomForAll'
-import { updateWinnersForAll, Winner } from './helpers/updateWinnersForAll'
+import {
+    updateWinnersForAll,
+    Winner,
+    WinnerForResponse,
+} from './helpers/updateWinnersForAll'
 import { addUserToRoom } from './helpers/addUserToRoom'
 import { createGame } from './helpers/createGame'
 import { GameInfo, handleAddShips } from './handlers/handleAddShips'
@@ -14,7 +18,8 @@ const webSocketServer = new ws.Server({ port: 3000 })
 const users = new Map<Player['name'], Player>()
 const wsToPlayerName = new Map<ws, Player['name']>()
 const rooms = new Map<string, Room>()
-const winners = new Map<Player['name'], Winner>()
+const winners = new Map<string, Winner>()
+
 const games = new Map<string, GameInfo>()
 webSocketServer.on('connection', (ws, req) => {
     ws.on('message', (message) => {
@@ -25,10 +30,17 @@ webSocketServer.on('connection', (ws, req) => {
                 const data = JSON.parse(parsedMessage.data)
                 handleRegister(data, ws, users, wsToPlayerName)
                 updateRoomForAll(webSocketServer, Array.from(rooms.values()))
-                updateWinnersForAll(
-                    webSocketServer,
-                    Array.from(winners.values())
-                )
+                const winnersList: WinnerForResponse[] = Array.from(
+                    Object.values(winners)
+                ).map((player) => {
+                    const playerWs = wsToPlayerName.get(player.ws) as string
+                    const user = users.get(playerWs)
+                    return {
+                        name: user?.name as string,
+                        wins: player.wins,
+                    }
+                })
+                updateWinnersForAll(webSocketServer, winnersList)
                 break
             case 'create_room':
                 createRoom(ws, rooms, users, wsToPlayerName)

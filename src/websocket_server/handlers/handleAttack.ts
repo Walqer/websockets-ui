@@ -1,3 +1,5 @@
+import { checkWin } from '../helpers/checkWin'
+import { sendWinResponse } from '../helpers/sendWinResponse'
 import { turn } from '../helpers/turn'
 import { addShipsData, GameInfo, Position, Ship } from './handleAddShips'
 import ws from 'ws'
@@ -46,7 +48,7 @@ function checkTurn(
     return game![game!.turnOwner]?.indexPlayer === indexPlayer
 }
 
-function getShipPositions(ship: Ship) {
+export function getShipPositions(ship: Ship) {
     const positions: Position[] = []
     for (let i = 0; i < ship.length; i++) {
         const pos = !ship.direction
@@ -94,6 +96,13 @@ function checkAttack(
                             ],
                         })
                     })
+                    const isWin = checkWin(board)
+                    if (isWin) {
+                        sendWinResponse(game[game.turnOwner]!.indexPlayer, [
+                            game.firstPlayer.ws,
+                            game.secondPlayer!.ws,
+                        ])
+                    }
                 }
                 return { board, message: allHits ? 'killed' : 'shot' }
             }
