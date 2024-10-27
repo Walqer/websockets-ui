@@ -81,7 +81,6 @@ function checkAttack(
                 )
                 if (allHits) {
                     let aroundPositions = getSurroundingPositions(shipPositions)
-                    console.log('aroundPositions', aroundPositions)
                     aroundPositions.forEach(({ x, y }) => {
                         if (board.hits.has(`${x},${y}`)) return
                         board.hits.add(`${x},${y}`)

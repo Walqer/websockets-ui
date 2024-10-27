@@ -56,6 +56,10 @@ webSocketServer.on('connection', (ws, req) => {
 
                 break
             case 'randomAttack':
+                const randomAttackRequestData = JSON.parse(
+                    parsedMessage.data
+                ) as AttackData
+                handleAttack(randomAttackRequestData, games)
                 break
             default:
                 ws.close(500, 'Wrong message type')
