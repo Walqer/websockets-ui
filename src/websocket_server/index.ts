@@ -7,6 +7,7 @@ import { addUserToRoom } from './helpers/addUserToRoom'
 import { createGame } from './helpers/createGame'
 import { GameInfo, handleAddShips } from './handlers/handleAddShips'
 import { AttackData, handleAttack } from './handlers/handleAttack'
+import { generateRandomPosition } from './helpers/generateRandomPosition'
 
 const webSocketServer = new ws.Server({ port: 3000 })
 
@@ -59,7 +60,17 @@ webSocketServer.on('connection', (ws, req) => {
                 const randomAttackRequestData = JSON.parse(
                     parsedMessage.data
                 ) as AttackData
-                handleAttack(randomAttackRequestData, games)
+                const game = games.get(randomAttackRequestData.gameId)
+                const enemy =
+                    randomAttackRequestData.indexPlayer === 'firstPlayer'
+                        ? 'secondPlayer'
+                        : 'firstPlayer'
+                const randomPos = generateRandomPosition(game![enemy]!.hits)
+                const randomAttacData = {
+                    ...randomAttackRequestData,
+                    ...randomPos,
+                }
+                handleAttack(randomAttacData, games)
                 break
             default:
                 ws.close(500, 'Wrong message type')
