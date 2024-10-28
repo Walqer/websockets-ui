@@ -8,6 +8,7 @@ export type MessageType =
     | 'add_user_to_room'
     | 'add_ships'
     | 'randomAttack'
+    | 'single_play'
 
 export interface Message {
     type: MessageType

@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto'
-import { Room } from './updateRoomForAll'
+import { Room, updateRoomForAll } from './updateRoomForAll'
 import { Player } from '../types/messageTypes'
 export const createGame = (
     users: Map<Player['name'], Player>,

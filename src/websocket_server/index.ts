@@ -57,6 +57,7 @@ webSocketServer.on('connection', (ws, req) => {
                 })
                 updateRoomForAll(webSocketServer, Array.from(rooms.values()))
                 createGame(users, rooms, indexRoom)
+                updateRoomForAll(webSocketServer, Array.from(rooms.values()))
                 break
             case 'add_ships':
                 handleAddShips(parsedMessage.data, games, ws)
@@ -83,6 +84,9 @@ webSocketServer.on('connection', (ws, req) => {
                     ...randomPos,
                 }
                 handleAttack(randomAttacData, games)
+                break
+            case 'single_play':
+                //not implemented
                 break
             default:
                 ws.close(500, 'Wrong message type')
