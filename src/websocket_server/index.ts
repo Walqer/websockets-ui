@@ -66,8 +66,33 @@ webSocketServer.on('connection', (ws, req) => {
                 const attackRequestData = JSON.parse(
                     parsedMessage.data
                 ) as AttackData
-                handleAttack(attackRequestData, games)
-
+                const win = handleAttack(attackRequestData, games)
+                if (win) {
+                    const user = users.get(wsToPlayerName.get(ws)!) as Player
+                    if (!winners.has(user.name)) {
+                        const winner = winners.set(user.name, {
+                            name: user.name!,
+                            wins: 1,
+                        })
+                    } else {
+                        const player = winners.get(user.name) as Winner
+                        const winner = winners.set(user.name, {
+                            ...player,
+                            wins: player.wins + 1,
+                        })
+                    }
+                    const winnersList: WinnerForResponse[] = Array.from(
+                        Object.values(winners)
+                    ).map((player) => {
+                        const playerWs = wsToPlayerName.get(player.ws) as string
+                        const user = users.get(playerWs)
+                        return {
+                            name: user?.name as string,
+                            wins: player.wins,
+                        }
+                    })
+                    updateWinnersForAll(webSocketServer, winnersList)
+                }
                 break
             case 'randomAttack':
                 const randomAttackRequestData = JSON.parse(

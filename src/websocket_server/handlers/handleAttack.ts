@@ -1,6 +1,7 @@
 import { checkWin } from '../helpers/checkWin'
 import { sendWinResponse } from '../helpers/sendWinResponse'
 import { turn } from '../helpers/turn'
+import { Winner } from '../helpers/updateWinnersForAll'
 import { addShipsData, GameInfo, Position, Ship } from './handleAddShips'
 import ws from 'ws'
 export interface AttackData {
@@ -24,7 +25,7 @@ export const handleAttack = (
     const enemyBoard = game[enemy] as addShipsData
     const repeatShot = enemyBoard.hits.has(`${data.x},${data.y}`) // Повторный выстрел
     if (repeatShot) return
-    const { board, message } = checkAttack(enemyBoard, attackPos, game)
+    const { board, message, win } = checkAttack(enemyBoard, attackPos, game)
     games.set(data.gameId, { ...game, [enemy]: board })
     createAttackResponse({
         wsList: [game.firstPlayer.ws, game.secondPlayer!.ws],
@@ -32,6 +33,9 @@ export const handleAttack = (
         position: attackPos,
         status: message,
     })
+    if (win) {
+        return win
+    }
     if (message !== 'miss') {
         turn(data.gameId, games, game.turnOwner)
     } else {
@@ -66,6 +70,7 @@ function checkAttack(
 ): {
     board: addShipsData
     message: AttackStatus
+    win?: boolean
 } {
     const hitKey = `${x},${y}`
     if (board.hits.has(hitKey)) {
@@ -103,8 +108,16 @@ function checkAttack(
                             game.secondPlayer!.ws,
                         ])
                     }
+                    return {
+                        board,
+                        message: allHits ? 'killed' : 'shot',
+                        win: isWin,
+                    }
                 }
-                return { board, message: allHits ? 'killed' : 'shot' }
+                return {
+                    board,
+                    message: allHits ? 'killed' : 'shot',
+                }
             }
         }
     }

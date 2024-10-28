@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws'
 export interface Winner {
-    ws: WebSocket
+    name: string
     wins: number
 }
 export interface WinnerForResponse {
